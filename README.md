@@ -17,11 +17,12 @@ My K6 Project provides a robust and straightforward load testing environment to 
 
 ## Features
 
-- **High Concurrency Simulation** - Generate concurrent virtual users to accurately stress test web applications and identify bottlenecks
-- **Automated Visual Reporting** - Generate detailed HTML performance reports automatically using the integrated `k6-reporter`
-- **Performance Thresholds** - Enforce strict performance metrics, ensuring request durations remain under specified limits
-- **Terminal Summaries** - Receive immediate, color-coded performance metrics directly in your standard output
-- **Framework Agnostic** - Benchmark any HTTP endpoint regardless of the underlying backend technology or infrastructure
+- **Selectable Scenarios** - Choose from multiple built-in test scenarios (Load, Stress, Spike, Soak, Concurrent, and Full Stress) with a simple config switch.
+- **High Concurrency Simulation** - Generate concurrent virtual users to accurately stress test web applications and identify bottlenecks.
+- **Automated Visual Reporting** - Generate detailed HTML performance reports automatically using the integrated `k6-reporter`.
+- **Performance Thresholds** - Enforce strict performance metrics (p95 request duration limits and error rates).
+- **Terminal Summaries** - Receive immediate, color-coded performance metrics directly in your standard output.
+- **Framework Agnostic** - Benchmark any HTTP endpoint regardless of the underlying backend technology or infrastructure.
 
 ## Tech Stack
 
@@ -33,40 +34,57 @@ My K6 Project provides a robust and straightforward load testing environment to 
 
 ### Prerequisites
 
-- [Grafana k6](https://k6.io/docs/get-started/installation/) installed on your operating system
+- [Grafana k6](https://k6.io/docs/get-started/installation/) installed on your operating system.
 
 ### Steps
 
-1. Clone the repository to your local machine
+1. Clone the repository to your local machine:
+   ```bash
+   git clone https://github.com/reynaldiarya/My-K6-Project.git
+   cd My-K6-Project
+   ```
 
-```bash
-git clone https://github.com/reynaldiarya/My-K6-Project.git
-cd My-K6-Project
-```
-
-2. Ensure the results directory exists
-
-```bash
-mkdir -p result
-```
+2. Ensure the results directory exists:
+   ```bash
+   mkdir -p result
+   ```
 
 ## Configuration
 
-The load testing parameters can be customized directly within the `simple-stress-test.js` file. Open the file and adjust the following configurations to match your testing requirements:
+The load testing parameters can be customized directly within the simple-test.js file.
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `TARGET_URL` | The HTTP endpoint to be tested | `http://127.0.0.1:80/` |
-| `options.scenarios.full_stress_test.vus` | Number of concurrent virtual users | `200` |
-| `options.scenarios.full_stress_test.duration` | The total duration of the stress test | `10s` |
-| `options.thresholds.http_req_duration` | Acceptable request duration limits | `p(95) < 5000` |
+### 1. Select Scenario & Target
+
+Open simple-test.js and adjust the following configurations:
+
+- `SELECTED_SCENARIO`: Choose which test pattern to run.
+- `TARGET_URL`: The target HTTP/HTTPS endpoint to run the test against.
+
+```javascript
+// Config
+const SELECTED_SCENARIO = "full_stress_test"; // Choose: load_test, stress_test, spike_test, soak_test, concurrent_test, full_stress_test
+const TARGET_URL = "http://127.0.0.1";
+```
+
+### 2. Scenario Options Reference
+
+Here is a summary of the predefined scenarios available in the script:
+
+| Scenario Name | Executor | VUs / Pattern | Duration | Best For |
+|---|---|---|---|---|
+| `load_test` | `constant-vus` | 50 VUs | 5m | Benchmarking steady traffic load |
+| `stress_test` | `ramping-vus` | Ramp up to 300 VUs | 10m | Finding the breaking point of the app |
+| `spike_test` | `ramping-vus` | Sudden burst to 500 VUs | 26s | Simulating flash sales or event launches |
+| `soak_test` | `constant-vus` | 30 VUs | 2h | Checking for memory leaks or degradation over time |
+| `concurrent_test` | `constant-vus` | 200 VUs | 30s | Simultaneous access testing (sleep=0) |
+| `full_stress_test`| `constant-vus` | 100 VUs | 10s | Quick sanity check under medium load |
 
 ## Usage
 
 To initiate the load test, run the following command in your terminal from the project root:
 
 ```bash
-k6 run simple-stress-test.js
+k6 run simple-test.js
 ```
 
 Upon completion, k6 will output a text summary to your terminal and save a detailed graphical HTML report at `result/result.html`. You can open this HTML file in any modern web browser to review the test metrics.
@@ -76,14 +94,8 @@ Upon completion, k6 will output a text summary to your terminal and save a detai
 ```text
 /
 ├── result/                   # Directory containing generated HTML performance reports
-└── simple-stress-test.js     # The core k6 load testing execution script
+└── simple-test.js            # The core k6 load testing execution script containing all scenarios
 ```
-
-## Scripts / Commands
-
-| Command | Description |
-|---------|-------------|
-| `k6 run simple-stress-test.js` | Execute the load test and generate performance reports |
 
 ## Contributing
 
